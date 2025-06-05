@@ -7,15 +7,7 @@ import time
 
 
 rtsp_streams = [
-    {"url": "rtsp://admin:P!ss_148@91.225.79.175:2554/Streaming/Channels/101", "name": "Cam 1"},
-    {"url": "rtsp://admin:P!ss_148@91.225.79.175:2554/Streaming/Channels/201", "name": "Cam 2"},
-    {"url": "rtsp://admin:P!ss_148@91.225.79.175:2554/Streaming/Channels/301", "name": "Cam 3"},
-    {"url": "rtsp://admin:P!ss_148@91.225.79.175:2554/Streaming/Channels/401", "name": "Cam 4"},
-    {"url": "rtsp://admin:P!ss_148@91.225.79.175:2554/Streaming/Channels/501", "name": "Cam 5"},
-    {"url": "rtsp://admin:P!ss_148@91.225.79.175:2554/Streaming/Channels/601", "name": "Cam 6"},
-    {"url": "rtsp://admin:P!ss_148@91.225.79.175:2554/Streaming/Channels/701", "name": "Cam 7"},
-    {"url": "rtsp://admin:P!ss_148@91.225.79.175:2554/Streaming/Channels/801", "name": "Cam 8"},
-    {"url": "rtsp://admin:P!ss_148@91.225.79.175:2554/Streaming/Channels/901", "name": "Cam 9"},
+    
 ]
 
 
