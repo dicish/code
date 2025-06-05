@@ -15,7 +15,7 @@ frame_width = 320
 frame_height = 180
 
 
-model = YOLO("C:\\Users\\91808\\Downloads\\Telegram Desktop\\best3.pt")
+model = YOLO("best3.pt")
 
 
 def start_stream(rtsp_url):
