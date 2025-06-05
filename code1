@@ -1,0 +1,95 @@
+import ffmpeg
+import numpy as np
+import cv2
+from ultralytics import YOLO
+import threading
+import time
+
+
+rtsp_streams = [
+    {"url": "rtsp://admin:P!ss_148@91.225.79.175:2554/Streaming/Channels/101", "name": "Cam 1"},
+    {"url": "rtsp://admin:P!ss_148@91.225.79.175:2554/Streaming/Channels/201", "name": "Cam 2"},
+    {"url": "rtsp://admin:P!ss_148@91.225.79.175:2554/Streaming/Channels/301", "name": "Cam 3"},
+    {"url": "rtsp://admin:P!ss_148@91.225.79.175:2554/Streaming/Channels/401", "name": "Cam 4"},
+    {"url": "rtsp://admin:P!ss_148@91.225.79.175:2554/Streaming/Channels/501", "name": "Cam 5"},
+    {"url": "rtsp://admin:P!ss_148@91.225.79.175:2554/Streaming/Channels/601", "name": "Cam 6"},
+    {"url": "rtsp://admin:P!ss_148@91.225.79.175:2554/Streaming/Channels/701", "name": "Cam 7"},
+    {"url": "rtsp://admin:P!ss_148@91.225.79.175:2554/Streaming/Channels/801", "name": "Cam 8"},
+    {"url": "rtsp://admin:P!ss_148@91.225.79.175:2554/Streaming/Channels/901", "name": "Cam 9"},
+]
+
+
+frame_width = 320
+frame_height = 180
+
+
+model = YOLO("C:\\Users\\91808\\Downloads\\Telegram Desktop\\best3.pt")
+
+
+def start_stream(rtsp_url):
+    width = frame_width
+    height = frame_height
+    return (
+        ffmpeg
+        .input(rtsp_url, rtsp_transport='tcp')
+        .output('pipe:', format='rawvideo', pix_fmt='bgr24', s=f'{width}x{height}')
+        .run_async(pipe_stdout=True, pipe_stderr=True)
+    )
+
+
+def read_frame(process):
+    width = frame_width
+    height = frame_height
+    bytes_per_frame = width * height * 3
+    in_bytes = process.stdout.read(bytes_per_frame)
+    if not in_bytes:
+        return None
+    return np.frombuffer(in_bytes, np.uint8).reshape([height, width, 3])
+
+
+def stream_camera(stream):
+    name = stream["name"]
+    url = stream["url"]
+
+    print(f"[⚔️] Подключение к {name}...")
+    process = start_stream(url)
+
+    try:
+        while True:
+            frame = read_frame(process)
+            if frame is None:
+                print(f"[💀] Поток с {name} оборван. Перезапуск...")
+                process.terminate()
+                time.sleep(2)
+                process = start_stream(url)
+                continue
+
+            yolo_model = model
+            results = yolo_model.predict(frame, conf=0.5)
+            annotated_frame = results[0].plot()
+
+            cv2.imshow(name, annotated_frame)
+
+            if cv2.waitKey(1) & 0xFF == ord('q'):
+                break
+
+    finally:
+        process.terminate()
+        print(f"[☠️] Поток {name} завершён.")
+        cv2.destroyWindow(name)
+
+
+def main():
+    threads = []
+    streams = rtsp_streams
+    for stream in streams:
+        t = threading.Thread(target=stream_camera, args=(stream,))
+        t.start()
+        threads.append(t)
+
+    for t in threads:
+        t.join()
+
+
+if __name__ == "__main__":
+    main()
